@@ -57,7 +57,7 @@ public class Sailor{
     /**
      * Method that performs state update
      */
-    public void update(Input input, Block[] blocks){
+    public void update(Input input, Block[] blocks, Pirate[] pirates){
         // store old coordinates every time the sailor moves
         if (input.isDown(Keys.UP)){
             setOldPoints();
@@ -88,7 +88,7 @@ public class Sailor{
         }
 
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
-        if (inAttackState){ attack(); }
+        if (inAttackState){ attack(pirates); }
         checkCollisions(blocks);
         checkOutOfBound();
         currentImage.draw(x, y);
@@ -169,8 +169,16 @@ public class Sailor{
         };
     }
 
-    public void attack(){
-
+    public void attack(Pirate[] pirates){
+        Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
+        for (Pirate pirate : pirates){
+            if (!(pirate == null)) {
+                Rectangle pirateBox = pirate.getBoundingBox();
+                if (sailorBox.intersects(pirateBox)) {
+                    pirate.reduceHealthPoints(DAMAGE_POINTS);
+                }
+            }
+        }
     }
 
     public void setBound(int bottom, int top, int left, int right){

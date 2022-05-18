@@ -126,10 +126,10 @@ public class ShadowPirate extends AbstractGame{
             for (Block block : blocks) {
                 block.update();
             }
-            sailor.update(input, blocks);
+            sailor.update(input, blocks, pirates);
             for (Pirate pirate : pirates) {
                 if (!(pirate == null)) {
-                    pirate.update(blocks);
+                    pirate.update(sailor, blocks);
                 }
             }
 

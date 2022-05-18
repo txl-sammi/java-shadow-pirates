@@ -17,17 +17,20 @@ public class Pirate extends Level{
     private final static double MIN_SPEED = 0.2;
     private final static int MAX_DAMAGE = 10;
     private final static int MAX_HEALTH_POINTS = 45;
+    private final static int ORANGE_BOUNDARY = 65;
+    private final static int RED_BOUNDARY = 35;
     private final static int FONT_SIZE = 15;
     private final static int IMAGE_WIDTH = 40;
     private final static int IMAGE_LENGTH = 58;
 
     private final static Font FONT = new Font("res/wheaton.otf", FONT_SIZE);
-    private final static DrawOptions COLOUR = new DrawOptions();
+
     private final static Colour GREEN = new Colour(0, 0.8, 0.2);
     private final static Colour ORANGE = new Colour(0.9, 0.6, 0);
     private final static Colour RED = new Colour(1, 0, 0);
     private final static List<String> list = new ArrayList<>();
 
+    private DrawOptions colour = new DrawOptions();
     private double x;
     private double y;
     private double oldX;
@@ -46,7 +49,7 @@ public class Pirate extends Level{
         this.y = startY;
         this.healthPoints = MAX_HEALTH_POINTS;
         this.currentImage = PIRATE_RIGHT;
-        COLOUR.setBlendColour(GREEN);
+        colour.setBlendColour(GREEN);
     }
 
     public String getRandomDirection(List<String> list){
@@ -60,8 +63,12 @@ public class Pirate extends Level{
     }
 
 
-    public void update(Block[] blocks){
+    public void update(Sailor sailor, Block[] blocks){
         // store old coordinates every time the pirate moves
+
+        if(isDead()) {
+
+        }
 
         if (Objects.equals(direction, "left")) {
             setOldPoints();
@@ -79,9 +86,11 @@ public class Pirate extends Level{
             move(0, speed);
         }
 
+
         checkCollisions(blocks);
         checkOutOfBound();
         currentImage.draw(x, y);
+        renderHealthPoints();
     }
 
     /**
@@ -93,7 +102,6 @@ public class Pirate extends Level{
         for (Block current : blocks) {
             Rectangle blockBox = current.getBoundingBox();
             if (pirateBox.intersects(blockBox)) {
-                System.out.println("colliding");
                 changeDirection();
                 moveBack();
                 break;
@@ -102,7 +110,6 @@ public class Pirate extends Level{
     }
 
     public void changeDirection(){
-        System.out.println("first: "+direction);
         if (Objects.equals(direction, "left")) {
             direction = "right";
         } else if (Objects.equals(direction, "right")) {
@@ -113,7 +120,6 @@ public class Pirate extends Level{
         } else if (Objects.equals(direction, "down")) {
             direction = "up";
         }
-        System.out.println("last: "+direction);
     }
 
     public void checkOutOfBound(){
@@ -151,4 +157,28 @@ public class Pirate extends Level{
         oldY = y;
     }
 
+    /**
+     * Method that renders the current health as a percentage on screen
+     */
+    private void renderHealthPoints(){
+        double percentageHP = ((double) healthPoints/MAX_HEALTH_POINTS) * 100;
+        if (percentageHP <= RED_BOUNDARY){
+            colour.setBlendColour(RED);
+        } else if (percentageHP <= ORANGE_BOUNDARY){
+            colour.setBlendColour(ORANGE);
+        }
+        FONT.drawString(Math.round(percentageHP) + "%", x - IMAGE_WIDTH/2, y-6 - IMAGE_LENGTH/2, colour);
+    }
+
+    public Rectangle getBoundingBox(){
+        return currentImage.getBoundingBoxAt(new Point(x, y));
+    }
+
+    public void reduceHealthPoints(int damage) {
+        healthPoints = healthPoints - damage;
+    }
+
+    public boolean isDead(){
+        return healthPoints <= 0;
+    }
 }
