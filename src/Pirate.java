@@ -14,6 +14,7 @@ public class Pirate extends Level{
     private final static Image PIRATE_HIT_LEFT = new Image("res/pirate/pirateHitLeft.png");
     private final static Image PIRATE_HIT_RIGHT = new Image("res/pirate/pirateHitRight.png");
     private final static double MAX_SPEED = 0.7;
+    private final static double MIN_SPEED = 0.2;
     private final static int MAX_DAMAGE = 10;
     private final static int MAX_HEALTH_POINTS = 45;
     private final static int FONT_SIZE = 15;
@@ -27,17 +28,17 @@ public class Pirate extends Level{
     private final static Colour RED = new Colour(1, 0, 0);
     private final static List<String> list = new ArrayList<>();
 
-    private int x;
-    private int y;
-    private int oldX;
-    private int oldY;
+    private double x;
+    private double y;
+    private double oldX;
+    private double oldY;
     private int bottomEdge;
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
     private int healthPoints;
     private Image currentImage;
-    private double speed = Math.random() * MAX_SPEED;
+    private double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
     private String direction = getRandomDirection(list);
 
     public Pirate(int startX, int startY){
@@ -60,8 +61,8 @@ public class Pirate extends Level{
 
 
     public void update(Block[] blocks){
-        System.out.println(direction);
         // store old coordinates every time the pirate moves
+
         if (Objects.equals(direction, "left")) {
             setOldPoints();
             move(-speed, 0);
@@ -92,23 +93,33 @@ public class Pirate extends Level{
         for (Block current : blocks) {
             Rectangle blockBox = current.getBoundingBox();
             if (pirateBox.intersects(blockBox)) {
-                if (Objects.equals(direction, "left")) {
-                    direction = "right";
-                } else if (Objects.equals(direction, "right")) {
-                    direction = "left";
-                } else if (Objects.equals(direction, "up")) {
-                    direction = "down";
-                } else if (Objects.equals(direction, "down")) {
-                    direction = "up";
-                }
+                System.out.println("colliding");
+                changeDirection();
                 moveBack();
+                break;
             }
         }
+    }
+
+    public void changeDirection(){
+        System.out.println("first: "+direction);
+        if (Objects.equals(direction, "left")) {
+            direction = "right";
+        } else if (Objects.equals(direction, "right")) {
+            direction = "left";
+        } else if (Objects.equals(direction, "up")) {
+            System.out.println("changes to down");
+            direction = "down";
+        } else if (Objects.equals(direction, "down")) {
+            direction = "up";
+        }
+        System.out.println("last: "+direction);
     }
 
     public void checkOutOfBound(){
         if ((y - IMAGE_LENGTH/2 < topEdge) || (y - IMAGE_LENGTH/2 > bottomEdge) || (x - IMAGE_WIDTH/2 < leftEdge) || (x > rightEdge)) {
             moveBack();
+            changeDirection();
         };
     }
 
