@@ -8,4 +8,12 @@ public class Treasure extends Item{
         this.imageLength = IMAGE_LENGTH;
         this.imageWidth = IMAGE_WIDTH;
     }
+
+    /**
+     * Method that sets boolean values to indicate that treasure has been gained
+     */
+    public void pickup(Sailor sailor){
+        pickedUp = true;
+        sailor.gotTreasure();
+    }
 }

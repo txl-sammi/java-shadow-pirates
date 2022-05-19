@@ -31,7 +31,6 @@ public class ShadowPirate extends AbstractGame{
 
     private final static int MAX_ARRAY_SIZE = 49;
     private final static Block[] blocks = new Block[MAX_ARRAY_SIZE];
-    private final static Bomb[] bombs = new Bomb[MAX_ARRAY_SIZE];
     private final static Pirate[] pirates = new Pirate[MAX_ARRAY_SIZE];
     private final ArrayList<Projectile> projectiles = new ArrayList<>();
 
@@ -152,6 +151,7 @@ public class ShadowPirate extends AbstractGame{
             level1 = true;
         }
 
+        // level 0 begin
         if (level0){
             if (!gameOn){
                 drawStartScreen(input, LVL1_START_MESSAGE);
@@ -206,16 +206,11 @@ public class ShadowPirate extends AbstractGame{
                 if (sailor.hasWon()){
                     levelCompleteTime = (int) System.currentTimeMillis();
                     levelWin = true;
-
-                    for (Projectile projectile : projectiles){
-                        if (!(projectile == null)){
-                            projectile.clear();
-                        }
-                    }
                 }
             }
         }
 
+        // level 1 begin
         if (level1){
             if (!gameOn){
                 drawStartScreen(input, LVL2_START_MESSAGE);
@@ -270,7 +265,7 @@ public class ShadowPirate extends AbstractGame{
                     levelEnd = true;
                 }
 
-                if (sailor.hasWon()){
+                if (sailor.hasTreasure()){
                     levelWin = true;
                 }
             }
@@ -295,6 +290,9 @@ public class ShadowPirate extends AbstractGame{
         FONT.drawString(message, (Window.getWidth()/2.0 - (FONT.getWidth(message)/2.0)), FONT_Y_POS);
     }
 
+    /**
+     * Method that clears the objects in level0
+     */
     private void clearLevel(){
         for (int i=0; i < MAX_ARRAY_SIZE; i++) {
             blocks[i] = null;

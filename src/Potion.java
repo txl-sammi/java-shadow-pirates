@@ -6,11 +6,15 @@ public class Potion extends Item{
         this.currentImage = POTION;
         this.iconImage = POTION_ICON;
     }
+
+    /**
+     * Method that allows sailor to increase health when item is picked up
+     */
     public void pickup(Sailor sailor){
         sailor.increaseHealth(HEALTH_INCREASE);
         pickedUp = true;
-        CURRENT_ICONS++;
-        iconNumber = CURRENT_ICONS;
+        currentIcons++;
+        iconNumber = currentIcons;
         System.out.println(iconNumber);
     }
 }

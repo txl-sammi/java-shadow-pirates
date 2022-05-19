@@ -8,7 +8,7 @@ public class Item extends Object implements Pickupable{
     private final static int ICON_ADJUSTMENT = 40;
     private final static int IMAGE_LENGTH = 40;
     private final static int IMAGE_WIDTH = 32;
-    protected static int CURRENT_ICONS = 0;
+    protected static int currentIcons = 0;
     protected boolean pickedUp = false;
     protected int iconNumber = 0;
     protected int imageWidth;
@@ -21,6 +21,9 @@ public class Item extends Object implements Pickupable{
         this.imageWidth = IMAGE_WIDTH;
     }
 
+    /**
+     * Method that performs state update
+     */
     public void update(Sailor sailor) {
         if (!pickedUp){
             currentImage.drawFromTopLeft(x, y);
@@ -33,10 +36,13 @@ public class Item extends Object implements Pickupable{
     @Override
     public void pickup(Sailor sailor) {
         pickedUp = true;
-        CURRENT_ICONS++;
-        iconNumber = CURRENT_ICONS;
+        currentIcons++;
+        iconNumber = currentIcons;
     }
 
+    /**
+     * Method that checks if item has collided with sailor and picks up item if so
+     */
     public void checkCollision(Sailor sailor) {
         Rectangle itemBox = currentImage.getBoundingBoxAt(new Point(x, y));
 
@@ -46,6 +52,9 @@ public class Item extends Object implements Pickupable{
         }
     }
 
+    /**
+     * Method that renders the icons of picked up items
+     */
     public void showIcon(){
         if (iconNumber == 1){
             iconImage.draw(ICON_X, ICON_Y);

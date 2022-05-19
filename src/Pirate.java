@@ -69,6 +69,9 @@ public class Pirate extends Object{
         this.projectile = PIRATE_PROJECTILE;
     }
 
+    /**
+     * Method that performs state update
+     */
     public void update(Block[] blocks){
         // store old coordinates every time the pirate moves
 
@@ -88,8 +91,9 @@ public class Pirate extends Object{
                 setOldPoints();
                 move(0, speed);
             }
-            renderInvincible();
+            renderImage();
 
+            // check for invincible and cooldown durations
             int now = (int) System.currentTimeMillis();
             isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
             isCooldown = !((lastShootTime + shootCooldown <= now));
@@ -183,7 +187,10 @@ public class Pirate extends Object{
         oldY = y;
     }
 
-    private void renderInvincible(){
+    /**
+     * Method that assigns the correct image to current image
+     */
+    private void renderImage(){
         if (isInvincible && isLeft){
             currentImage = leftHit;
         } else if (isInvincible && !isLeft){
@@ -212,12 +219,16 @@ public class Pirate extends Object{
      * Method that reduces pirates health points if they are not invincible
      */
     public void reduceHealthPoints(int damage) {
-        if (!isInvincible){
+        if (!isInvincible && !isDead()){
             healthPoints = healthPoints - damage;
             lastHurtTime = (int) System.currentTimeMillis();
+            System.out.println("Sailor inflicts " + damage + " damage points on Pirate. Pirates's current health: " + getHealth() + "/" + getMaxHealth());
         }
     }
 
+    /**
+     * Method that checks if the sailor is within the pirates attack range
+     */
     public boolean canShoot(Sailor sailor){
         Rectangle sailorBox = sailor.getBoundingBox();
         Rectangle pirateBox = new Rectangle(x - attackRange/2, y - attackRange/2, attackRange, attackRange);
@@ -225,6 +236,10 @@ public class Pirate extends Object{
         return pirateBox.intersects(sailorBox);
     }
 
+
+    /**
+     * Method that determines the direction the bullet with be rotated in radians
+     */
     public double directionFromSailor(Sailor sailor){
         double sailorX = sailor.getX();
         double sailorY = sailor.getY();
@@ -239,6 +254,9 @@ public class Pirate extends Object{
         return Math.atan(differenceY/differenceX) - adjustment;
     }
 
+    /**
+     * Method that initiates a projectile if the pirate's cooldown is over
+     */
     public Projectile shoot(Sailor sailor){
         if (!isCooldown){
             lastShootTime = (int) System.currentTimeMillis();
@@ -247,6 +265,9 @@ public class Pirate extends Object{
         return null;
     }
 
+    /**
+     * Method that checks if pirate has died
+     */
     public boolean isDead(){
         return healthPoints <= 0;
     }
@@ -257,4 +278,13 @@ public class Pirate extends Object{
         this.leftEdge = left;
         this.rightEdge = right;
     }
+
+    public int getHealth(){
+        return (int) healthPoints;
+    }
+
+    public int getMaxHealth(){
+        return maxHealth;
+    }
+
 }

@@ -28,6 +28,9 @@ public class Projectile implements Attackable{
         directionToDraw.setRotation(direction);
     }
 
+    /**
+     * Method that performs state update
+     */
     public void update(Sailor sailor){
         if (!disappeared){
             double moveX = Math.cos(direction) * speed;
@@ -40,6 +43,9 @@ public class Projectile implements Attackable{
         }
     }
 
+    /**
+     * Method that determines if the projectile has collided with the sailor
+     */
     @Override
     public void attack(Object sailor){
         Rectangle sailorBox = sailor.getBoundingBox();
@@ -47,9 +53,14 @@ public class Projectile implements Attackable{
         if (sailorBox.intersects(projectilePoint)) {
             sailor.reduceHealthPoints(damagePoints);
             disappeared = true;
+            System.out.println("Pirate inflicts " + damagePoints + " damage points on Sailor. Sailor's current health: " + sailor.getHealth() + "/" + sailor.getMaxHealth());
+
         }
     }
 
+    /**
+     * Method that moves the projectile to the given direction
+     */
     private void move(double xMove, double yMove){
         x += xMove;
         y += yMove;
@@ -57,10 +68,6 @@ public class Projectile implements Attackable{
 
     public boolean hasDisappeared(){
         return disappeared;
-    }
-
-    public void clear(){
-        disappeared = true;
     }
 
     public void checkOutOfBound(){

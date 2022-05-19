@@ -39,6 +39,7 @@ public class Object {
     protected double x;
     protected double y;
     protected double healthPoints;
+    protected double maxHealth;
     protected Image currentImage;
 
     public Object(int x, int y){
@@ -60,5 +61,13 @@ public class Object {
 
     public Rectangle getBoundingBox(){
         return currentImage.getBoundingBoxAt(new Point(x, y));
+    }
+
+    public int getHealth(){
+        return (int) healthPoints;
+    }
+
+    public int getMaxHealth(){
+        return (int) maxHealth;
     }
 }

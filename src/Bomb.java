@@ -1,20 +1,26 @@
 public class Bomb extends Block{
-    private final static int MAX_DAMAGE = 10;
+    private boolean disappeared = false;
 
     public Bomb(int startX, int startY){
         super(startX, startY);
         this.currentImage = BOMB;
+        this.explodable = true;
     }
 
     /**
      * Method that performs state update
      */
     public void update() {
-        BOMB.draw(x, y);
-    }
+        if (!disappeared){
+            currentImage.draw(x, y);
 
-    public void explode() {
-        currentImage = EXPLOSION;
-    }
+            if (isExploding){
+                currentImage = EXPLOSION;
+                int now = (int) System.currentTimeMillis();
 
+                disappeared = !((lastExplodeTime + EXPLODING_DURATION >= now));
+            }
+        }
+
+    }
 }

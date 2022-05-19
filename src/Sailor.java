@@ -6,7 +6,7 @@ import bagel.util.Rectangle;
 public class Sailor extends Object implements Attackable{
     private final static double IMAGE_WIDTH = 40;
     private final static double IMAGE_LENGTH = 58;
-    private final static int MOVE_SIZE = 2;
+    private final static int MOVE_SIZE = 1;
     private final static int MAX_HEALTH_POINTS = 100;
     private final static int DAMAGE_POINTS = 15;
 
@@ -35,6 +35,7 @@ public class Sailor extends Object implements Attackable{
     private int maxHealth;
     private int damagePoints;
     private boolean isLeft = false;
+    private boolean hasTreasure = false;
     private int lastAttackTime = (int) System.currentTimeMillis() - ATTACK_COOLDOWN;
     private boolean inAttackState = false;
 
@@ -78,6 +79,7 @@ public class Sailor extends Object implements Attackable{
             }
         }
 
+        // check if in attack state
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
         if (inAttackState){ checkPirateCollisions(pirates);}
 
@@ -97,6 +99,9 @@ public class Sailor extends Object implements Attackable{
             if (current != null){
                 Rectangle blockBox = current.getBoundingBox();
                 if (sailorBox.intersects(blockBox)) {
+                    if (!current.isExploding() && current.isExplodable()){
+                        current.exploding(this);
+                    }
                     moveBack();
                 }
             }
@@ -163,11 +168,31 @@ public class Sailor extends Object implements Attackable{
         };
     }
 
+    /**
+     * Method that sets that the sailor has got the treasure
+     */
+    public void gotTreasure(){
+        hasTreasure = true;
+    }
+
+    /**
+     * Method that returns whether sailor has got the treasure
+     */
+    public boolean hasTreasure(){
+        return hasTreasure;
+    }
+
+    /**
+     * Method that boosts sailors max health with given value
+     */
     public void boostMaxHealth(int boost){
         maxHealth = MAX_HEALTH_POINTS + boost;
         healthPoints = maxHealth;
     }
 
+    /**
+     * Method that increases sailors health with given value
+     */
     public void increaseHealth(int boost){
         if (healthPoints + boost >= MAX_HEALTH_POINTS){
             healthPoints = MAX_HEALTH_POINTS;
@@ -177,10 +202,16 @@ public class Sailor extends Object implements Attackable{
         }
     }
 
+    /**
+     * Method that increases sailor damage with given value
+     */
     public void increaseDamage(int boost){
         damagePoints = damagePoints + boost;
     }
 
+    /**
+     * Method that sets the correct attack image
+     */
     public void setAttackImage(){
         if (inAttackState && isLeft){
             currentImage = SAILOR_HIT_LEFT;
@@ -193,6 +224,9 @@ public class Sailor extends Object implements Attackable{
         }
     }
 
+    /**
+     * Method that checks if sailor has collided with any pirates
+     */
     public void checkPirateCollisions(Pirate[] pirates){
         Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
         for (Pirate pirate : pirates){
@@ -210,6 +244,9 @@ public class Sailor extends Object implements Attackable{
         object.reduceHealthPoints(damagePoints);
     }
 
+    /**
+     * Method that reduces sailors health points by given value
+     */
     public void reduceHealthPoints(int damage) {
         healthPoints = healthPoints - damage;
     }
@@ -220,4 +257,13 @@ public class Sailor extends Object implements Attackable{
         this.leftEdge = left;
         this.rightEdge = right;
     }
+
+    public int getHealth(){
+        return (int) healthPoints;
+    }
+
+    public int getMaxHealth(){
+        return maxHealth;
+    }
+
 }

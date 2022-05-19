@@ -7,10 +7,13 @@ public class Elixir extends Item{
         this.iconImage = ELIXIR_ICON;
     }
 
+    /**
+     * Method that allows sailor to boost their max health when item is picked up
+     */
     public void pickup(Sailor sailor){
         pickedUp = true;
-        CURRENT_ICONS++;
-        iconNumber = CURRENT_ICONS;
+        currentIcons++;
+        iconNumber = currentIcons;
         sailor.boostMaxHealth(MAX_HEALTH_BOOST);
         System.out.println(iconNumber);
 

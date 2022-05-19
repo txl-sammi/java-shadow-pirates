@@ -7,11 +7,14 @@ public class Sword extends Item{
         this.iconImage = SWORD_ICON;
     }
 
+    /**
+     * Method that allows sailor to increase their damage if item has been picked up
+     */
     public void pickup(Sailor sailor){
         sailor.increaseDamage(DAMAGE_INCREASE);
         pickedUp = true;
-        CURRENT_ICONS++;
-        iconNumber = CURRENT_ICONS;
+        currentIcons++;
+        iconNumber = currentIcons;
         System.out.println(iconNumber);
     }
 }
