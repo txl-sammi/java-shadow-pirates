@@ -22,13 +22,14 @@ public class Pirate extends Level{
     private final static int FONT_SIZE = 15;
     private final static int IMAGE_WIDTH = 40;
     private final static int IMAGE_LENGTH = 58;
+    private final static int INVINCIBLE_DURATION = 1500;
 
     private final static Font FONT = new Font("res/wheaton.otf", FONT_SIZE);
 
     private final static Colour GREEN = new Colour(0, 0.8, 0.2);
     private final static Colour ORANGE = new Colour(0.9, 0.6, 0);
     private final static Colour RED = new Colour(1, 0, 0);
-    private final static List<String> list = new ArrayList<>();
+    private final static List<String> DIRECTION_LIST = new ArrayList<>();
 
     private DrawOptions colour = new DrawOptions();
     private double x;
@@ -40,9 +41,14 @@ public class Pirate extends Level{
     private int leftEdge;
     private int rightEdge;
     private int healthPoints;
+    private int currentHealth = healthPoints;
+    private boolean isInvincible = false;
+
+    private int lastHurtTime = (int) System.currentTimeMillis();
+    private boolean inAttackState = false;
     private Image currentImage;
     private double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
-    private String direction = getRandomDirection(list);
+    private String direction = getRandomDirection(DIRECTION_LIST);
 
     public Pirate(int startX, int startY){
         this.x = startX;
@@ -66,31 +72,31 @@ public class Pirate extends Level{
     public void update(Sailor sailor, Block[] blocks){
         // store old coordinates every time the pirate moves
 
-        if(isDead()) {
+        if(!(isDead())) {
+            if (Objects.equals(direction, "left")) {
+                setOldPoints();
+                move(-speed, 0);
+                currentImage = PIRATE_LEFT;
+            } else if (Objects.equals(direction, "right")) {
+                setOldPoints();
+                move(speed, 0);
+                currentImage = PIRATE_RIGHT;
+            } else if (Objects.equals(direction, "up")) {
+                setOldPoints();
+                move(0, -speed);
+            } else if (Objects.equals(direction, "down")) {
+                setOldPoints();
+                move(0, speed);
+            }
 
+            int now = (int) System.currentTimeMillis();
+            isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
+
+            checkCollisions(blocks);
+            checkOutOfBound();
+            currentImage.draw(x, y);
+            renderHealthPoints();
         }
-
-        if (Objects.equals(direction, "left")) {
-            setOldPoints();
-            move(-speed, 0);
-            currentImage = PIRATE_LEFT;
-        } else if (Objects.equals(direction, "right")) {
-            setOldPoints();
-            move(speed, 0);
-            currentImage = PIRATE_RIGHT;
-        } else if (Objects.equals(direction, "up")) {
-            setOldPoints();
-            move(0, -speed);
-        } else if (Objects.equals(direction, "down")) {
-            setOldPoints();
-            move(0, speed);
-        }
-
-
-        checkCollisions(blocks);
-        checkOutOfBound();
-        currentImage.draw(x, y);
-        renderHealthPoints();
     }
 
     /**
@@ -115,7 +121,6 @@ public class Pirate extends Level{
         } else if (Objects.equals(direction, "right")) {
             direction = "left";
         } else if (Objects.equals(direction, "up")) {
-            System.out.println("changes to down");
             direction = "down";
         } else if (Objects.equals(direction, "down")) {
             direction = "up";
@@ -175,10 +180,18 @@ public class Pirate extends Level{
     }
 
     public void reduceHealthPoints(int damage) {
-        healthPoints = healthPoints - damage;
+        if (!isInvincible){
+            healthPoints = healthPoints - damage;
+            int now = (int) System.currentTimeMillis();
+            lastHurtTime = now;
+        }
     }
 
     public boolean isDead(){
         return healthPoints <= 0;
+    }
+
+    public void invincible(){
+
     }
 }

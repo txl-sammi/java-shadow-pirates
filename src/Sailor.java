@@ -89,9 +89,10 @@ public class Sailor{
 
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
         if (inAttackState){ attack(pirates); }
+
+        currentImage.draw(x, y);
         checkCollisions(blocks);
         checkOutOfBound();
-        currentImage.draw(x, y);
         renderHealthPoints();
     }
 
