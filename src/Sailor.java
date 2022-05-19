@@ -3,7 +3,7 @@ import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-public class Sailor extends Level{
+public class Sailor{
     private final static Image SAILOR_LEFT = new Image("res/sailor/sailorLeft.png");
     private final static Image SAILOR_RIGHT = new Image("res/sailor/sailorRight.png");
     private final static Image SAILOR_HIT_LEFT = new Image("res/sailor/sailorHitLeft.png");
@@ -85,8 +85,7 @@ public class Sailor extends Level{
         }
 
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
-        if (inAttackState){ attack(pirates);
-        System.out.println("attacking");}
+        if (inAttackState){ attack(pirates);}
 
         currentImage.draw(x, y);
         checkCollisions(blocks);

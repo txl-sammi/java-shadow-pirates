@@ -32,7 +32,6 @@ public class Projectile{
 
     public void update(Sailor sailor){
         if (!disappeared){
-            // between 0 and pi/2
             moveX = Math.cos(direction)*speed;
             moveY = Math.sin(direction)*speed;
 

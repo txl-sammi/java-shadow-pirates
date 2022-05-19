@@ -17,10 +17,13 @@ public class ShadowPirate extends AbstractGame{
     private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
     private final Image PIRATE_PROJECTILE = new Image("res/pirate/pirateProjectile.png");
     private final Image BLACK_PROJECTILE = new Image("res/blackbeard/blackbeardProjectile.png");
-    private final static String LEVEL1_FILE = "res/level0.csv";
+    private final static String LEVEL0_FILE = "res/level0.csv";
+    private final static String LEVEL1_FILE = "res/level1.csv";
     private final static String START_MESSAGE = "PRESS SPACE TO START\nPRESS S TO ATTACK\nUSE ARROW KEYS TO FIND LADDER";
     private final static String END_MESSAGE = "GAME OVER";
+    private final static String LEVEL_COMPLETE_MESSAGE = "LEVEL COMPLETE!";
     private final static String WIN_MESSAGE = "CONGRATULATIONS!";
+    private final static int WIN_MESSAGE_TIME = 3000;
 
     private final static int FONT_SIZE = 55;
     private final static int FONT_Y_POS = 402;
@@ -29,24 +32,27 @@ public class ShadowPirate extends AbstractGame{
     private final static int MAX_ARRAY_SIZE = 49;
     private final static Block[] blocks = new Block[MAX_ARRAY_SIZE];
     private final static Pirate[] pirates = new Pirate[MAX_ARRAY_SIZE];
-    private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+    private final ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 
     private Sailor sailor;
     private boolean gameOn;
-    private boolean gameEnd;
-    private boolean gameWin;
-
-    int bottomEdge = 0;
-    int topEdge = 0;
-    int leftEdge = 0;
-    int rightEdge = 0;
+    private boolean levelEnd;
+    private boolean levelWin;
+    private boolean level0;
+    private boolean level1;
+    private int bottomEdge = 0;
+    private int topEdge = 0;
+    private int leftEdge = 0;
+    private int rightEdge = 0;
 
     public ShadowPirate(){
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
-        readCSV(LEVEL1_FILE);
-        gameWin = false;
-        gameEnd = false;
+        readCSV(LEVEL0_FILE);
+        levelWin = false;
+        levelEnd = false;
         gameOn = false;
+        level0 = true;
+        level1 = false;
     }
 
     /**
@@ -120,44 +126,53 @@ public class ShadowPirate extends AbstractGame{
             drawStartScreen(input);
         }
 
-        if (gameWin){
-            drawEndScreen(WIN_MESSAGE);
-        }
-
-        // when game is running
-        if (gameOn && !gameEnd && !gameWin){
-            BACKGROUND_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
-            for (Block block : blocks) {
-                block.update();
+        if (level0){
+            if (levelWin){
+                drawEndScreen(WIN_MESSAGE);
             }
-            sailor.update(input, blocks, pirates);
-            for (Pirate pirate : pirates) {
-                if (!(pirate == null)) {
-                    pirate.update(sailor, blocks);
-                    if (pirate.canShoot(sailor)){
-                        System.out.println(pirate.directionFromSailor(sailor));
-                        projectiles.add(pirate.shoot(sailor));
-                    };
+
+            if (levelEnd){
+                drawEndScreen(END_MESSAGE);
+            }
+
+            // when game is running
+            if (gameOn && !levelEnd && !levelWin){
+                BACKGROUND_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
+                for (Block block : blocks) {
+                    block.update();
                 }
-            }
-
-            for (Projectile projectile : projectiles){
-                if (!(projectile == null)){
-                    if (!projectile.hasDisappeared()){
-                        projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
-                        projectile.update(sailor);
+                sailor.update(input, blocks, pirates);
+                for (Pirate pirate : pirates) {
+                    if (!(pirate == null)) {
+                        pirate.update(sailor, blocks);
+                        if (pirate.canShoot(sailor)){
+                            projectiles.add(pirate.shoot(sailor));
+                        };
                     }
                 }
-            }
 
-            if (sailor.isDead()){
-                gameEnd = true;
-            }
+                for (Projectile projectile : projectiles){
+                    if (!(projectile == null)){
+                        if (!projectile.hasDisappeared()){
+                            projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
+                            projectile.update(sailor);
+                        }
+                    }
+                }
 
-            if (sailor.hasWon()){
-                gameWin = true;
+                if (sailor.isDead()){
+                    levelEnd = true;
+                }
+
+                if (sailor.hasWon()){
+                    levelWin = true;
+                    level0 = false;
+                    level1 = true;
+                }
             }
         }
+
+
     }
 
     /**

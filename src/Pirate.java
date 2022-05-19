@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-public class Pirate extends Level{
+public class Pirate{
     private final static Image PIRATE_LEFT = new Image("res/pirate/pirateLeft.png");
     private final static Image PIRATE_RIGHT = new Image("res/pirate/pirateRight.png");
     private final static Image PIRATE_HIT_LEFT = new Image("res/pirate/pirateHitLeft.png");
