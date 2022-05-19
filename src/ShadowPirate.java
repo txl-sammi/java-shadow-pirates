@@ -14,16 +14,16 @@ public class ShadowPirate extends AbstractGame{
     private final static int WINDOW_WIDTH = 1024;
     private final static int WINDOW_HEIGHT = 768;
     private final static String GAME_TITLE = "ShadowPirate";
-    private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
-    private final Image PIRATE_PROJECTILE = new Image("res/pirate/pirateProjectile.png");
-    private final Image BLACK_PROJECTILE = new Image("res/blackbeard/blackbeardProjectile.png");
+    private final Image BACKGROUND1_IMAGE = new Image("res/background0.png");
+    private final Image BACKGROUND2_IMAGE = new Image("res/background1.png");
     private final static String LEVEL0_FILE = "res/level0.csv";
     private final static String LEVEL1_FILE = "res/level1.csv";
-    private final static String START_MESSAGE = "PRESS SPACE TO START\nPRESS S TO ATTACK\nUSE ARROW KEYS TO FIND LADDER";
+    private final static String LVL1_START_MESSAGE = "PRESS SPACE TO START\nPRESS S TO ATTACK\nUSE ARROW KEYS TO FIND LADDER";
+    private final static String LVL2_START_MESSAGE = "PRESS SPACE TO START\nPRESS S TO ATTACK\nFIND THE TREASURE";
     private final static String END_MESSAGE = "GAME OVER";
     private final static String LEVEL_COMPLETE_MESSAGE = "LEVEL COMPLETE!";
     private final static String WIN_MESSAGE = "CONGRATULATIONS!";
-    private final static int WIN_MESSAGE_TIME = 3000;
+    private final static int MESSAGE_DURATION = 3000;
 
     private final static int FONT_SIZE = 55;
     private final static int FONT_Y_POS = 402;
@@ -31,15 +31,21 @@ public class ShadowPirate extends AbstractGame{
 
     private final static int MAX_ARRAY_SIZE = 49;
     private final static Block[] blocks = new Block[MAX_ARRAY_SIZE];
+    private final static Bomb[] bombs = new Bomb[MAX_ARRAY_SIZE];
     private final static Pirate[] pirates = new Pirate[MAX_ARRAY_SIZE];
-    private final ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+    private final ArrayList<Projectile> projectiles = new ArrayList<>();
 
     private Sailor sailor;
+    private Elixir elixir;
+    private Sword sword;
+    private Potion potion;
     private boolean gameOn;
     private boolean levelEnd;
     private boolean levelWin;
-    private boolean level0;
-    private boolean level1;
+    private boolean level0 = true;
+    private boolean level1 = false;
+    private boolean fileUnread = true;
+    private int levelCompleteTime;
     private int bottomEdge = 0;
     private int topEdge = 0;
     private int leftEdge = 0;
@@ -51,8 +57,6 @@ public class ShadowPirate extends AbstractGame{
         levelWin = false;
         levelEnd = false;
         gameOn = false;
-        level0 = true;
-        level1 = false;
     }
 
     /**
@@ -82,12 +86,29 @@ public class ShadowPirate extends AbstractGame{
             while((line = reader.readLine()) != null){
                 String[] sections = line.split(",");
                 if (sections[0].equals("Block")){
-                    blocks[currentBlock] = new Block(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                    if (level0){
+                        blocks[currentBlock] = new Block(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                    } else{
+                        blocks[currentBlock] = new Bomb(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                    }
                     currentBlock++;
                 }
                 if (sections[0].equals("Pirate")){
                     pirates[currentPirate] = new Pirate(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
                     currentPirate++;
+                }
+                if (sections[0].equals("Blackbeard")){
+                    pirates[currentPirate] = new Blackbeard(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                    currentPirate++;
+                }
+                if (sections[0].equals("Elixir")){
+                    elixir = new Elixir(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                }
+                if (sections[0].equals("Potion")){
+                    potion = new Potion(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
+                }
+                if (sections[0].equals("Sword")){
+                    sword = new Sword(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
                 }
                 if (sections[0].equals("BottomRight")){
                     rightEdge = Integer.parseInt(sections[1]);
@@ -122,11 +143,79 @@ public class ShadowPirate extends AbstractGame{
             Window.close();
         }
 
-        if (!gameOn){
-            drawStartScreen(input);
+        if (input.wasPressed(Keys.W)){
+            level0 = false;
+            level1 = true;
         }
 
         if (level0){
+            if (!gameOn){
+                drawStartScreen(input, LVL1_START_MESSAGE);
+            }
+
+            if (levelWin){
+                int now = (int) System.currentTimeMillis();
+                if (!((levelCompleteTime + MESSAGE_DURATION <= now))){
+                    drawEndScreen(LEVEL_COMPLETE_MESSAGE);
+                } else {
+                    level0 = false;
+                    levelWin = false;
+                    gameOn = false;
+                    level1 = true;
+                }
+            }
+
+            if (levelEnd){
+                drawEndScreen(END_MESSAGE);
+            }
+
+            // when game is running
+            if (gameOn && !levelEnd && !levelWin && level0){
+                BACKGROUND1_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
+                for (Block block : blocks) {
+
+                    block.update();
+                }
+                sailor.update(input, blocks, pirates);
+                for (Pirate pirate : pirates) {
+                    if (!(pirate == null)) {
+                        pirate.update(blocks);
+                        if (pirate.canShoot(sailor)){
+                            projectiles.add(pirate.shoot(sailor));
+                        }
+                    }
+                }
+
+                for (Projectile projectile : projectiles){
+                    if (!(projectile == null)){
+                        if (!projectile.hasDisappeared()){
+                            projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
+                            projectile.update(sailor);
+                        }
+                    }
+                }
+
+                if (sailor.isDead()){
+                    levelEnd = true;
+                }
+
+                if (sailor.hasWon()){
+                    levelCompleteTime = (int) System.currentTimeMillis();
+                    levelWin = true;
+
+                    for (Projectile projectile : projectiles){
+                        if (!(projectile == null)){
+                            projectile.clear();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (level1){
+            if (!gameOn){
+                drawStartScreen(input, LVL2_START_MESSAGE);
+            }
             if (levelWin){
                 drawEndScreen(WIN_MESSAGE);
             }
@@ -135,19 +224,31 @@ public class ShadowPirate extends AbstractGame{
                 drawEndScreen(END_MESSAGE);
             }
 
-            // when game is running
             if (gameOn && !levelEnd && !levelWin){
-                BACKGROUND_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
-                for (Block block : blocks) {
-                    block.update();
+                BACKGROUND2_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
+                if (fileUnread) {
+                    clearLevel();
+                    readCSV(LEVEL1_FILE);
+                    fileUnread = false;
                 }
+
+                for (Block bomb : blocks) {
+                    if (!(bomb == null)){
+                        bomb.update();
+                    }
+                }
+
                 sailor.update(input, blocks, pirates);
+                elixir.update();
+                potion.update();
+                sword.update();
+
                 for (Pirate pirate : pirates) {
                     if (!(pirate == null)) {
-                        pirate.update(sailor, blocks);
+                        pirate.update(blocks);
                         if (pirate.canShoot(sailor)){
                             projectiles.add(pirate.shoot(sailor));
-                        };
+                        }
                     }
                 }
 
@@ -166,20 +267,16 @@ public class ShadowPirate extends AbstractGame{
 
                 if (sailor.hasWon()){
                     levelWin = true;
-                    level0 = false;
-                    level1 = true;
                 }
             }
         }
-
-
     }
 
     /**
      * Method used to draw the start screen instructions
      */
-    private void drawStartScreen(Input input){
-        FONT.drawString(START_MESSAGE, (Window.getWidth()/2.0 - (FONT.getWidth(START_MESSAGE)/2.0)),
+    private void drawStartScreen(Input input, String message){
+        FONT.drawString(message, (Window.getWidth()/2.0 - (FONT.getWidth(message)/2.0)),
                 FONT_Y_POS);
         if (input.wasPressed(Keys.SPACE)){
             gameOn = true;
@@ -192,4 +289,13 @@ public class ShadowPirate extends AbstractGame{
     private void drawEndScreen(String message){
         FONT.drawString(message, (Window.getWidth()/2.0 - (FONT.getWidth(message)/2.0)), FONT_Y_POS);
     }
+
+    private void clearLevel(){
+        for (int i=0; i < MAX_ARRAY_SIZE; i++) {
+            blocks[i] = null;
+            pirates[i] = null;
+        }
+        projectiles.removeIf(projectile -> !(projectile == null));
+    }
+
 }

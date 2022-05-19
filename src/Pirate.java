@@ -8,63 +8,68 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-public class Pirate{
-    private final static Image PIRATE_LEFT = new Image("res/pirate/pirateLeft.png");
-    private final static Image PIRATE_RIGHT = new Image("res/pirate/pirateRight.png");
-    private final static Image PIRATE_HIT_LEFT = new Image("res/pirate/pirateHitLeft.png");
-    private final static Image PIRATE_HIT_RIGHT = new Image("res/pirate/pirateHitRight.png");
-    private final static Image PIRATE_PROJECTILE = new Image("res/pirate/pirateProjectile.png");
-    private final static double MAX_SPEED = 0.7;
-    private final static double MIN_SPEED = 0.2;
-    private final static int MAX_DAMAGE = 10;
-    private final static double PROJECTILE_SPEED = 0.4;
-    private final static int MAX_HEALTH_POINTS = 45;
+public class Pirate extends Object{
+    protected final static double MAX_SPEED = 0.7;
+    protected final static double MIN_SPEED = 0.2;
+    protected final static int MAX_DAMAGE = 10; //
+    protected final static double PROJECTILE_SPEED = 0.4; //
+    protected final static int MAX_HEALTH_POINTS = 45; //
     private final static int ORANGE_BOUNDARY = 65;
     private final static int RED_BOUNDARY = 35;
-    private final static int FONT_SIZE = 15;
-    private final static int IMAGE_WIDTH = 40;
-    private final static int IMAGE_LENGTH = 58;
-    private final static int INVINCIBLE_DURATION = 1500;
-    private final static int SHOOT_COOLDOWN = 3000;
-    private final static int ATTACK_RANGE = 100;
+    protected final static double IMAGE_WIDTH = 40;
+    protected final static double IMAGE_LENGTH = 58;
+    protected final static int INVINCIBLE_DURATION = 1500;
+    protected final static int SHOOT_COOLDOWN = 3000; //
+    protected final static double ATTACK_RANGE = 100; //
 
-    private final static Font FONT = new Font("res/wheaton.otf", FONT_SIZE);
+    protected final static Colour GREEN = new Colour(0, 0.8, 0.2);
+    protected final static Colour ORANGE = new Colour(0.9, 0.6, 0);
+    protected final static Colour RED = new Colour(1, 0, 0);
+    protected final static List<String> DIRECTION_LIST = new ArrayList<>();
+    protected final DrawOptions colour = new DrawOptions();
+    protected Image projectile;
+    protected Image left;
+    protected Image right;
+    protected Image leftHit;
+    protected Image rightHit;
+    protected int maxHealth;
+    protected int maxDamage;
+    protected double projectileSpeed;
+    protected int shootCooldown;
+    protected double attackRange;
 
-    private final static Colour GREEN = new Colour(0, 0.8, 0.2);
-    private final static Colour ORANGE = new Colour(0.9, 0.6, 0);
-    private final static Colour RED = new Colour(1, 0, 0);
-    private final static List<String> DIRECTION_LIST = new ArrayList<>();
-    private List<Object> projectileStats = new ArrayList<Object>();
-
-    private DrawOptions colour = new DrawOptions();
-    private double x;
-    private double y;
     private double oldX;
     private double oldY;
     private int bottomEdge;
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
-    private int healthPoints;
     private boolean isInvincible = false;
     private boolean isLeft = false;
     private boolean isCooldown = false;
-
     private int lastHurtTime = (int) System.currentTimeMillis() - INVINCIBLE_DURATION;
-    private int lastShootTime = (int) System.currentTimeMillis() - SHOOT_COOLDOWN;
-    private Image currentImage;
-    private double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
+    private int lastShootTime = (int) System.currentTimeMillis() - shootCooldown;
+    private final double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
     private String direction = getRandomDirection(DIRECTION_LIST);
 
     public Pirate(int startX, int startY){
-        this.x = startX;
-        this.y = startY;
+        super(startX, startY);
         this.healthPoints = MAX_HEALTH_POINTS;
         this.currentImage = PIRATE_RIGHT;
         colour.setBlendColour(GREEN);
+        this.left = PIRATE_LEFT;
+        this.right = PIRATE_RIGHT;
+        this.leftHit = PIRATE_HIT_LEFT;
+        this.rightHit = PIRATE_HIT_RIGHT;
+        this.maxHealth = MAX_HEALTH_POINTS;
+        this.maxDamage = MAX_DAMAGE;
+        this.projectileSpeed = PROJECTILE_SPEED;
+        this.shootCooldown = SHOOT_COOLDOWN;
+        this.attackRange = ATTACK_RANGE;
+        this.projectile = PIRATE_PROJECTILE;
     }
 
-    public void update(Sailor sailor, Block[] blocks){
+    public void update(Block[] blocks){
         // store old coordinates every time the pirate moves
 
         if(!(isDead())) {
@@ -87,30 +92,32 @@ public class Pirate{
 
             int now = (int) System.currentTimeMillis();
             isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
-            isCooldown = !((lastShootTime + SHOOT_COOLDOWN <= now));
+            isCooldown = !((lastShootTime + shootCooldown <= now));
 
 
             checkCollisions(blocks);
             checkOutOfBound();
             currentImage.draw(x, y);
             renderHealthPoints();
-
         }
     }
 
     /**
-     * Method that checks for collisions between sailor and blocks
+     * Method that checks for collisions between pirate and blocks
      */
     private void checkCollisions(Block[] blocks){
         // check collisions and print log
         Rectangle pirateBox = currentImage.getBoundingBoxAt(new Point(x, y));
         for (Block current : blocks) {
-            Rectangle blockBox = current.getBoundingBox();
-            if (pirateBox.intersects(blockBox)) {
-                changeDirection();
-                moveBack();
-                break;
+            if (current != null){
+                Rectangle blockBox = current.getBoundingBox();
+                if (pirateBox.intersects(blockBox)) {
+                    changeDirection();
+                    moveBack();
+                    break;
+                }
             }
+
         }
     }
 
@@ -149,7 +156,7 @@ public class Pirate{
         if ((y - IMAGE_LENGTH/2 < topEdge) || (y - IMAGE_LENGTH/2 > bottomEdge) || (x - IMAGE_WIDTH/2 < leftEdge) || (x > rightEdge)) {
             moveBack();
             changeDirection();
-        };
+        }
     }
 
     /**
@@ -178,13 +185,13 @@ public class Pirate{
 
     private void renderInvincible(){
         if (isInvincible && isLeft){
-            currentImage = PIRATE_HIT_LEFT;
+            currentImage = leftHit;
         } else if (isInvincible && !isLeft){
-            currentImage = PIRATE_HIT_RIGHT;
+            currentImage = rightHit;
         } else if (!isInvincible && isLeft) {
-            currentImage = PIRATE_LEFT;
+            currentImage = left;
         } else if (!isInvincible && !isLeft){
-            currentImage = PIRATE_RIGHT;
+            currentImage = right;
         }
     }
 
@@ -192,7 +199,7 @@ public class Pirate{
      * Method that renders the current health of pirate as a percentage above them
      */
     private void renderHealthPoints(){
-        double percentageHP = ((double) healthPoints/MAX_HEALTH_POINTS) * 100;
+        double percentageHP = (healthPoints/maxHealth) * 100;
         if (percentageHP <= RED_BOUNDARY){
             colour.setBlendColour(RED);
         } else if (percentageHP <= ORANGE_BOUNDARY){
@@ -207,24 +214,20 @@ public class Pirate{
     public void reduceHealthPoints(int damage) {
         if (!isInvincible){
             healthPoints = healthPoints - damage;
-            int now = (int) System.currentTimeMillis();
-            lastHurtTime = now;
+            lastHurtTime = (int) System.currentTimeMillis();
         }
     }
 
     public boolean canShoot(Sailor sailor){
-        Rectangle sailorBox = sailor.getRectangle();
-        Rectangle pirateBox = new Rectangle(x - ATTACK_RANGE/2, y - ATTACK_RANGE/2, ATTACK_RANGE, ATTACK_RANGE);
+        Rectangle sailorBox = sailor.getBoundingBox();
+        Rectangle pirateBox = new Rectangle(x - attackRange/2, y - attackRange/2, attackRange, attackRange);
 
-        if(pirateBox.intersects(sailorBox)){
-            return true;
-        }
-        return false;
+        return pirateBox.intersects(sailorBox);
     }
 
     public double directionFromSailor(Sailor sailor){
-        int sailorX = sailor.getX();
-        int sailorY = sailor.getY();
+        double sailorX = sailor.getX();
+        double sailorY = sailor.getY();
         double adjustment = 0;
 
         double differenceX = x - sailorX;
@@ -238,31 +241,10 @@ public class Pirate{
 
     public Projectile shoot(Sailor sailor){
         if (!isCooldown){
-            int now = (int) System.currentTimeMillis();
-            lastShootTime = now;
-            return new Projectile(PIRATE_PROJECTILE, speed, MAX_DAMAGE, x, y, directionFromSailor(sailor));
+            lastShootTime = (int) System.currentTimeMillis();
+            return new Projectile(projectile, projectileSpeed, maxDamage, x, y, directionFromSailor(sailor));
         }
         return null;
-    }
-
-    public double getX(){
-        return x;
-    }
-
-    public double getY(){
-        return y;
-    }
-
-    public double getSpeed(){
-        return speed;
-    }
-
-    public int getDamage(){
-        return MAX_DAMAGE;
-    }
-
-    public Rectangle getBoundingBox(){
-        return currentImage.getBoundingBoxAt(new Point(x, y));
     }
 
     public boolean isDead(){

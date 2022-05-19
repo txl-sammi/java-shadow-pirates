@@ -2,23 +2,21 @@ import bagel.*;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-public class Projectile{
-    private final static int IMAGE_WIDTH = 64;
-    private final static int IMAGE_LENGTH = 64;
-    private Image projectileImage;
-    private double speed;
-    private int damagePoints;
+public class Projectile implements Attackable{
+    private final static double IMAGE_WIDTH = 64;
+    private final static double IMAGE_LENGTH = 64;
+    private final Image projectileImage;
+    private final double speed;
+    private final int damagePoints;
     private double x;
     private double y;
     private boolean disappeared = false;
-    private double moveX;
-    private double moveY;
-    private double direction;
+    private final double direction;
     private int bottomEdge;
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
-    private DrawOptions directionToDraw = new DrawOptions();
+    private final DrawOptions directionToDraw = new DrawOptions();
 
     public Projectile(Image projectile, double speed, int damage, double x, double y, double direction){
         this.projectileImage = projectile;
@@ -32,17 +30,18 @@ public class Projectile{
 
     public void update(Sailor sailor){
         if (!disappeared){
-            moveX = Math.cos(direction)*speed;
-            moveY = Math.sin(direction)*speed;
+            double moveX = Math.cos(direction) * speed;
+            double moveY = Math.sin(direction) * speed;
 
             move(moveX, moveY);
             checkOutOfBound();
-            checkCollision(sailor);
+            attack(sailor);
             projectileImage.draw(x,y, directionToDraw);
         }
     }
 
-    public void checkCollision(Sailor sailor){
+    @Override
+    public void attack(Object sailor){
         Rectangle sailorBox = sailor.getBoundingBox();
         Point projectilePoint = new Point(x, y);
         if (sailorBox.intersects(projectilePoint)) {
@@ -58,6 +57,10 @@ public class Projectile{
 
     public boolean hasDisappeared(){
         return disappeared;
+    }
+
+    public void clear(){
+        disappeared = true;
     }
 
     public void checkOutOfBound(){

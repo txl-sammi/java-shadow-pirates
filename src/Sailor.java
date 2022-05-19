@@ -3,13 +3,9 @@ import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-public class Sailor{
-    private final static Image SAILOR_LEFT = new Image("res/sailor/sailorLeft.png");
-    private final static Image SAILOR_RIGHT = new Image("res/sailor/sailorRight.png");
-    private final static Image SAILOR_HIT_LEFT = new Image("res/sailor/sailorHitLeft.png");
-    private final static Image SAILOR_HIT_RIGHT = new Image("res/sailor/sailorHitRight.png");
-    private final static int IMAGE_WIDTH = 40;
-    private final static int IMAGE_LENGTH = 58;
+public class Sailor extends Object implements Attackable{
+    private final static double IMAGE_WIDTH = 40;
+    private final static double IMAGE_LENGTH = 58;
     private final static int MOVE_SIZE = 2;
     private final static int MAX_HEALTH_POINTS = 100;
     private final static int DAMAGE_POINTS = 15;
@@ -30,24 +26,18 @@ public class Sailor{
     private final static Colour ORANGE = new Colour(0.9, 0.6, 0);
     private final static Colour RED = new Colour(1, 0, 0);
 
-
-    private int healthPoints;
-    private int oldX;
-    private int oldY;
-    private int x;
-    private int y;
+    private double oldX;
+    private double oldY;
     private int bottomEdge;
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
     private boolean isLeft = false;
-    private Image currentImage;
     private int lastAttackTime = (int) System.currentTimeMillis() - ATTACK_COOLDOWN;
     private boolean inAttackState = false;
 
     public Sailor(int startX, int startY){
-        this.x = startX;
-        this.y = startY;
+        super(startX, startY);
         this.healthPoints = MAX_HEALTH_POINTS;
         this.currentImage = SAILOR_RIGHT;
         COLOUR.setBlendColour(GREEN);
@@ -85,7 +75,7 @@ public class Sailor{
         }
 
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
-        if (inAttackState){ attack(pirates);}
+        if (inAttackState){ checkPirateCollisions(pirates);}
 
         currentImage.draw(x, y);
         checkCollisions(blocks);
@@ -100,9 +90,11 @@ public class Sailor{
         // check collisions and print log
         Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
         for (Block current : blocks) {
-            Rectangle blockBox = current.getBoundingBox();
-            if (sailorBox.intersects(blockBox)) {
-                moveBack();
+            if (current != null){
+                Rectangle blockBox = current.getBoundingBox();
+                if (sailorBox.intersects(blockBox)) {
+                    moveBack();
+                }
             }
         }
     }
@@ -135,7 +127,7 @@ public class Sailor{
      * Method that renders the current health as a percentage on screen
      */
     private void renderHealthPoints(){
-        double percentageHP = ((double) healthPoints/MAX_HEALTH_POINTS) * 100;
+        double percentageHP =  (healthPoints/MAX_HEALTH_POINTS) * 100;
         if (percentageHP <= RED_BOUNDARY){
             COLOUR.setBlendColour(RED);
         } else if (percentageHP <= ORANGE_BOUNDARY){
@@ -179,7 +171,7 @@ public class Sailor{
         }
     }
 
-    public void attack(Pirate[] pirates){
+    public void checkPirateCollisions(Pirate[] pirates){
         Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
         for (Pirate pirate : pirates){
             if (!(pirate == null)) {
@@ -191,6 +183,11 @@ public class Sailor{
         }
     }
 
+    @Override
+    public void attack(Object object) {
+        object.reduceHealthPoints(DAMAGE_POINTS);
+    }
+
     public void reduceHealthPoints(int damage) {
         healthPoints = healthPoints - damage;
     }
@@ -200,21 +197,5 @@ public class Sailor{
         this.topEdge = top;
         this.leftEdge = left;
         this.rightEdge = right;
-    }
-
-    public Rectangle getRectangle(){
-        return currentImage.getBoundingBoxAt(new Point(x, y));
-    }
-
-    public int getX(){
-        return x;
-    }
-
-    public int getY(){
-        return y;
-    }
-
-    public Rectangle getBoundingBox(){
-        return currentImage.getBoundingBoxAt(new Point(x, y));
     }
 }
