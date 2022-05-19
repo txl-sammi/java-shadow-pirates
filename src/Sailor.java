@@ -32,13 +32,17 @@ public class Sailor extends Object implements Attackable{
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
+    private int maxHealth;
+    private int damagePoints;
     private boolean isLeft = false;
     private int lastAttackTime = (int) System.currentTimeMillis() - ATTACK_COOLDOWN;
     private boolean inAttackState = false;
 
     public Sailor(int startX, int startY){
         super(startX, startY);
+        this.maxHealth = MAX_HEALTH_POINTS;
         this.healthPoints = MAX_HEALTH_POINTS;
+        this.damagePoints = DAMAGE_POINTS;
         this.currentImage = SAILOR_RIGHT;
         COLOUR.setBlendColour(GREEN);
     }
@@ -127,7 +131,7 @@ public class Sailor extends Object implements Attackable{
      * Method that renders the current health as a percentage on screen
      */
     private void renderHealthPoints(){
-        double percentageHP =  (healthPoints/MAX_HEALTH_POINTS) * 100;
+        double percentageHP =  (healthPoints/maxHealth) * 100;
         if (percentageHP <= RED_BOUNDARY){
             COLOUR.setBlendColour(RED);
         } else if (percentageHP <= ORANGE_BOUNDARY){
@@ -159,6 +163,24 @@ public class Sailor extends Object implements Attackable{
         };
     }
 
+    public void boostMaxHealth(int boost){
+        maxHealth = MAX_HEALTH_POINTS + boost;
+        healthPoints = maxHealth;
+    }
+
+    public void increaseHealth(int boost){
+        if (healthPoints + boost >= MAX_HEALTH_POINTS){
+            healthPoints = MAX_HEALTH_POINTS;
+        }
+        else{
+            healthPoints = healthPoints + boost;
+        }
+    }
+
+    public void increaseDamage(int boost){
+        damagePoints = damagePoints + boost;
+    }
+
     public void setAttackImage(){
         if (inAttackState && isLeft){
             currentImage = SAILOR_HIT_LEFT;
@@ -177,7 +199,7 @@ public class Sailor extends Object implements Attackable{
             if (!(pirate == null)) {
                 Rectangle pirateBox = pirate.getBoundingBox();
                 if (sailorBox.intersects(pirateBox)) {
-                    pirate.reduceHealthPoints(DAMAGE_POINTS);
+                    pirate.reduceHealthPoints(damagePoints);
                 }
             }
         }
@@ -185,7 +207,7 @@ public class Sailor extends Object implements Attackable{
 
     @Override
     public void attack(Object object) {
-        object.reduceHealthPoints(DAMAGE_POINTS);
+        object.reduceHealthPoints(damagePoints);
     }
 
     public void reduceHealthPoints(int damage) {

@@ -39,6 +39,7 @@ public class ShadowPirate extends AbstractGame{
     private Elixir elixir;
     private Sword sword;
     private Potion potion;
+    private Treasure treasure;
     private boolean gameOn;
     private boolean levelEnd;
     private boolean levelWin;
@@ -100,6 +101,9 @@ public class ShadowPirate extends AbstractGame{
                 if (sections[0].equals("Blackbeard")){
                     pirates[currentPirate] = new Blackbeard(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
                     currentPirate++;
+                }
+                if (sections[0].equals("Treasure")){
+                    treasure = new Treasure(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
                 }
                 if (sections[0].equals("Elixir")){
                     elixir = new Elixir(Integer.parseInt(sections[1]), Integer.parseInt(sections[2]));
@@ -239,9 +243,10 @@ public class ShadowPirate extends AbstractGame{
                 }
 
                 sailor.update(input, blocks, pirates);
-                elixir.update();
-                potion.update();
-                sword.update();
+                elixir.update(sailor);
+                potion.update(sailor);
+                sword.update(sailor);
+                treasure.update(sailor);
 
                 for (Pirate pirate : pirates) {
                     if (!(pirate == null)) {
