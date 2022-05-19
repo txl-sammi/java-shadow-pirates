@@ -16,6 +16,7 @@ public class Pirate extends Level{
     private final static double MAX_SPEED = 0.7;
     private final static double MIN_SPEED = 0.2;
     private final static int MAX_DAMAGE = 10;
+    private final static double PROJECTILE_SPEED = 0.4;
     private final static int MAX_HEALTH_POINTS = 45;
     private final static int ORANGE_BOUNDARY = 65;
     private final static int RED_BOUNDARY = 35;
@@ -23,6 +24,7 @@ public class Pirate extends Level{
     private final static int IMAGE_WIDTH = 40;
     private final static int IMAGE_LENGTH = 58;
     private final static int INVINCIBLE_DURATION = 1500;
+    private final static int ATTACK_RANGE = 100;
 
     private final static Font FONT = new Font("res/wheaton.otf", FONT_SIZE);
 
@@ -30,6 +32,7 @@ public class Pirate extends Level{
     private final static Colour ORANGE = new Colour(0.9, 0.6, 0);
     private final static Colour RED = new Colour(1, 0, 0);
     private final static List<String> DIRECTION_LIST = new ArrayList<>();
+    private List<Object> projectileStats = new ArrayList<Object>();
 
     private DrawOptions colour = new DrawOptions();
     private double x;
@@ -87,6 +90,7 @@ public class Pirate extends Level{
             checkOutOfBound();
             currentImage.draw(x, y);
             renderHealthPoints();
+
         }
     }
 
@@ -202,6 +206,44 @@ public class Pirate extends Level{
             int now = (int) System.currentTimeMillis();
             lastHurtTime = now;
         }
+    }
+
+    public boolean canShoot(Sailor sailor){
+        Rectangle sailorBox = sailor.getRectangle();
+        Rectangle pirateBox = new Rectangle(x - ATTACK_RANGE/2, y - ATTACK_RANGE/2, ATTACK_RANGE, ATTACK_RANGE);
+        Drawing drawing = new Drawing();
+        drawing.drawRectangle(x - ATTACK_RANGE/2, y - ATTACK_RANGE/2, ATTACK_RANGE, ATTACK_RANGE, Colour.RED);
+
+        if(pirateBox.intersects(sailorBox)){
+            System.out.println("shoot now");
+            return true;
+        }
+        return false;
+    }
+
+    public double directionFromSailor(Sailor sailor){
+        int sailorX = sailor.getX();
+        int sailorY = sailor.getY();
+
+        double differenceX = x - sailorX;
+        double differenceY = y - sailorY;
+        return Math.atan(differenceY/differenceX);
+    }
+
+    public double getX(){
+        return x;
+    }
+
+    public double getY(){
+        return y;
+    }
+
+    public double getSpeed(){
+        return speed;
+    }
+
+    public int getDamage(){
+        return MAX_DAMAGE;
     }
 
     public Rectangle getBoundingBox(){

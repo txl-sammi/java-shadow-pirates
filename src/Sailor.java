@@ -3,8 +3,6 @@ import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-import java.util.Timer;
-
 public class Sailor{
     private final static Image SAILOR_LEFT = new Image("res/sailor/sailorLeft.png");
     private final static Image SAILOR_RIGHT = new Image("res/sailor/sailorRight.png");
@@ -199,5 +197,17 @@ public class Sailor{
         this.topEdge = top;
         this.leftEdge = left;
         this.rightEdge = right;
+    }
+
+    public Rectangle getRectangle(){
+        return currentImage.getBoundingBoxAt(new Point(x, y));
+    }
+
+    public int getX(){
+        return x;
+    }
+
+    public int getY(){
+        return y;
     }
 }

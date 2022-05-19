@@ -3,6 +3,7 @@ import bagel.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * SWEN20003 Project 1, Semester 1, 2022
@@ -14,6 +15,8 @@ public class ShadowPirate extends AbstractGame{
     private final static int WINDOW_HEIGHT = 768;
     private final static String GAME_TITLE = "ShadowPirate";
     private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
+    private final Image PIRATE_PROJECTILE = new Image("res/pirate/pirateProjectile.png");
+    private final Image BLACK_PROJECTILE = new Image("res/blackbeard/blackbeardProjectile.png");
     private final static String LEVEL1_FILE = "res/level0.csv";
     private final static String START_MESSAGE = "PRESS SPACE TO START\nPRESS S TO ATTACK\nUSE ARROW KEYS TO FIND LADDER";
     private final static String END_MESSAGE = "GAME OVER";
@@ -26,8 +29,8 @@ public class ShadowPirate extends AbstractGame{
     private final static int MAX_ARRAY_SIZE = 49;
     private final static Block[] blocks = new Block[MAX_ARRAY_SIZE];
     private final static Pirate[] pirates = new Pirate[MAX_ARRAY_SIZE];
+    private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 
-    private Level level;
     private Sailor sailor;
     private boolean gameOn;
     private boolean gameEnd;
@@ -130,6 +133,18 @@ public class ShadowPirate extends AbstractGame{
             for (Pirate pirate : pirates) {
                 if (!(pirate == null)) {
                     pirate.update(sailor, blocks);
+                    if (pirate.canShoot(sailor)){
+                        System.out.println(pirate.directionFromSailor(sailor));
+                        projectiles.add(new Projectile(PIRATE_PROJECTILE, pirate.getSpeed(), pirate.getDamage(), pirate.getX(), pirate.getY(), pirate.directionFromSailor(sailor)));
+                    };
+                }
+            }
+
+            for (Projectile projectile : projectiles){
+                if (!(projectile == null)){
+                    if (!projectile.hasDisappeared()){
+                        projectile.update();
+                    }
                 }
             }
 
