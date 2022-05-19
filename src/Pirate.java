@@ -13,6 +13,7 @@ public class Pirate extends Level{
     private final static Image PIRATE_RIGHT = new Image("res/pirate/pirateRight.png");
     private final static Image PIRATE_HIT_LEFT = new Image("res/pirate/pirateHitLeft.png");
     private final static Image PIRATE_HIT_RIGHT = new Image("res/pirate/pirateHitRight.png");
+    private final static Image PIRATE_PROJECTILE = new Image("res/pirate/pirateProjectile.png");
     private final static double MAX_SPEED = 0.7;
     private final static double MIN_SPEED = 0.2;
     private final static int MAX_DAMAGE = 10;
@@ -24,6 +25,7 @@ public class Pirate extends Level{
     private final static int IMAGE_WIDTH = 40;
     private final static int IMAGE_LENGTH = 58;
     private final static int INVINCIBLE_DURATION = 1500;
+    private final static int SHOOT_COOLDOWN = 3000;
     private final static int ATTACK_RANGE = 100;
 
     private final static Font FONT = new Font("res/wheaton.otf", FONT_SIZE);
@@ -44,12 +46,12 @@ public class Pirate extends Level{
     private int leftEdge;
     private int rightEdge;
     private int healthPoints;
-    private int currentHealth = healthPoints;
     private boolean isInvincible = false;
     private boolean isLeft = false;
+    private boolean isCooldown = false;
 
     private int lastHurtTime = (int) System.currentTimeMillis() - INVINCIBLE_DURATION;
-    private boolean inAttackState = false;
+    private int lastShootTime = (int) System.currentTimeMillis() - SHOOT_COOLDOWN;
     private Image currentImage;
     private double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
     private String direction = getRandomDirection(DIRECTION_LIST);
@@ -85,6 +87,8 @@ public class Pirate extends Level{
 
             int now = (int) System.currentTimeMillis();
             isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
+            isCooldown = !((lastShootTime + SHOOT_COOLDOWN <= now));
+
 
             checkCollisions(blocks);
             checkOutOfBound();
@@ -211,11 +215,8 @@ public class Pirate extends Level{
     public boolean canShoot(Sailor sailor){
         Rectangle sailorBox = sailor.getRectangle();
         Rectangle pirateBox = new Rectangle(x - ATTACK_RANGE/2, y - ATTACK_RANGE/2, ATTACK_RANGE, ATTACK_RANGE);
-        Drawing drawing = new Drawing();
-        drawing.drawRectangle(x - ATTACK_RANGE/2, y - ATTACK_RANGE/2, ATTACK_RANGE, ATTACK_RANGE, Colour.RED);
 
         if(pirateBox.intersects(sailorBox)){
-            System.out.println("shoot now");
             return true;
         }
         return false;
@@ -224,10 +225,24 @@ public class Pirate extends Level{
     public double directionFromSailor(Sailor sailor){
         int sailorX = sailor.getX();
         int sailorY = sailor.getY();
+        double adjustment = 0;
 
         double differenceX = x - sailorX;
         double differenceY = y - sailorY;
-        return Math.atan(differenceY/differenceX);
+
+        if (differenceX > 0){
+            adjustment = Math.PI;
+        }
+        return Math.atan(differenceY/differenceX) - adjustment;
+    }
+
+    public Projectile shoot(Sailor sailor){
+        if (!isCooldown){
+            int now = (int) System.currentTimeMillis();
+            lastShootTime = now;
+            return new Projectile(PIRATE_PROJECTILE, speed, MAX_DAMAGE, x, y, directionFromSailor(sailor));
+        }
+        return null;
     }
 
     public double getX(){

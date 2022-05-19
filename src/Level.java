@@ -4,10 +4,10 @@ public abstract class Level {
     private int leftEdge;
     private int rightEdge;
 
-    public void setBound(int bottom, int top, int left, int right){
-        this.bottomEdge = bottom;
-        this.topEdge = top;
-        this.leftEdge = left;
-        this.rightEdge = right;
+    public boolean checkOutOfBound(double x, double y){
+        if ((y < topEdge) || (y > bottomEdge) || (x < leftEdge) || (x > rightEdge)) {
+            return true;
+        }
+        return false;
     }
 }

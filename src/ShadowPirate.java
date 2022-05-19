@@ -36,6 +36,11 @@ public class ShadowPirate extends AbstractGame{
     private boolean gameEnd;
     private boolean gameWin;
 
+    int bottomEdge = 0;
+    int topEdge = 0;
+    int leftEdge = 0;
+    int rightEdge = 0;
+
     public ShadowPirate(){
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
         readCSV(LEVEL1_FILE);
@@ -66,10 +71,6 @@ public class ShadowPirate extends AbstractGame{
                 }
             }
 
-            int bottomEdge = 0;
-            int topEdge = 0;
-            int leftEdge = 0;
-            int rightEdge = 0;
             int currentBlock = 0;
             int currentPirate = 0;
             while((line = reader.readLine()) != null){
@@ -135,7 +136,7 @@ public class ShadowPirate extends AbstractGame{
                     pirate.update(sailor, blocks);
                     if (pirate.canShoot(sailor)){
                         System.out.println(pirate.directionFromSailor(sailor));
-                        projectiles.add(new Projectile(PIRATE_PROJECTILE, pirate.getSpeed(), pirate.getDamage(), pirate.getX(), pirate.getY(), pirate.directionFromSailor(sailor)));
+                        projectiles.add(pirate.shoot(sailor));
                     };
                 }
             }
@@ -143,7 +144,8 @@ public class ShadowPirate extends AbstractGame{
             for (Projectile projectile : projectiles){
                 if (!(projectile == null)){
                     if (!projectile.hasDisappeared()){
-                        projectile.update();
+                        projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
+                        projectile.update(sailor);
                     }
                 }
             }

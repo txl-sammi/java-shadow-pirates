@@ -3,7 +3,7 @@ import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-public class Sailor{
+public class Sailor extends Level{
     private final static Image SAILOR_LEFT = new Image("res/sailor/sailorLeft.png");
     private final static Image SAILOR_RIGHT = new Image("res/sailor/sailorRight.png");
     private final static Image SAILOR_HIT_LEFT = new Image("res/sailor/sailorHitLeft.png");
@@ -192,6 +192,10 @@ public class Sailor{
         }
     }
 
+    public void reduceHealthPoints(int damage) {
+        healthPoints = healthPoints - damage;
+    }
+
     public void setBound(int bottom, int top, int left, int right){
         this.bottomEdge = bottom;
         this.topEdge = top;
@@ -209,5 +213,9 @@ public class Sailor{
 
     public int getY(){
         return y;
+    }
+
+    public Rectangle getBoundingBox(){
+        return currentImage.getBoundingBoxAt(new Point(x, y));
     }
 }
