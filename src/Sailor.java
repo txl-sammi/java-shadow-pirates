@@ -42,8 +42,9 @@ public class Sailor{
     private int topEdge;
     private int leftEdge;
     private int rightEdge;
+    private boolean isLeft = false;
     private Image currentImage;
-    private int lastAttackTime = (int) System.currentTimeMillis();
+    private int lastAttackTime = (int) System.currentTimeMillis() - ATTACK_COOLDOWN;
     private boolean inAttackState = false;
 
     public Sailor(int startX, int startY){
@@ -66,18 +67,16 @@ public class Sailor{
             setOldPoints();
             move(0, MOVE_SIZE);
         }else if (input.isDown(Keys.LEFT)){
+            isLeft = true;
             setOldPoints();
             move(-MOVE_SIZE,0);
-            if (inAttackState){
-                currentImage = SAILOR_HIT_LEFT;
-            } else { currentImage = SAILOR_LEFT; }
         }else if (input.isDown(Keys.RIGHT)){
+            isLeft = false;
             setOldPoints();
             move(MOVE_SIZE,0);
-            if (inAttackState){
-                currentImage = SAILOR_HIT_RIGHT;
-            } else { currentImage = SAILOR_RIGHT; }
         }
+
+        setAttackImage();
 
         // check for attack key
         int now = (int) System.currentTimeMillis();
@@ -88,7 +87,8 @@ public class Sailor{
         }
 
         inAttackState = !(lastAttackTime + ATTACK_DURATION <= now);
-        if (inAttackState){ attack(pirates); }
+        if (inAttackState){ attack(pirates);
+        System.out.println("attacking");}
 
         currentImage.draw(x, y);
         checkCollisions(blocks);
@@ -168,6 +168,18 @@ public class Sailor{
         if ((y - IMAGE_LENGTH/2 < topEdge) || (y - IMAGE_LENGTH/2 > bottomEdge) || (x - IMAGE_WIDTH/2 < leftEdge) || (x > rightEdge)) {
             moveBack();
         };
+    }
+
+    public void setAttackImage(){
+        if (inAttackState && isLeft){
+            currentImage = SAILOR_HIT_LEFT;
+        } else if(inAttackState && !isLeft){
+            currentImage = SAILOR_HIT_RIGHT;
+        } else if (!inAttackState && isLeft){
+            currentImage = SAILOR_LEFT;
+        } else if (!inAttackState && !isLeft){
+            currentImage = SAILOR_RIGHT;
+        }
     }
 
     public void attack(Pirate[] pirates){

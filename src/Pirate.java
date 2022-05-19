@@ -43,8 +43,9 @@ public class Pirate extends Level{
     private int healthPoints;
     private int currentHealth = healthPoints;
     private boolean isInvincible = false;
+    private boolean isLeft = false;
 
-    private int lastHurtTime = (int) System.currentTimeMillis();
+    private int lastHurtTime = (int) System.currentTimeMillis() - INVINCIBLE_DURATION;
     private boolean inAttackState = false;
     private Image currentImage;
     private double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
@@ -58,29 +59,18 @@ public class Pirate extends Level{
         colour.setBlendColour(GREEN);
     }
 
-    public String getRandomDirection(List<String> list){
-        list.add("left");
-        list.add("right");
-        list.add("up");
-        list.add("down");
-
-        Random rand = new Random();
-        return list.get(rand.nextInt(list.size()));
-    }
-
-
     public void update(Sailor sailor, Block[] blocks){
         // store old coordinates every time the pirate moves
 
         if(!(isDead())) {
             if (Objects.equals(direction, "left")) {
                 setOldPoints();
+                isLeft = true;
                 move(-speed, 0);
-                currentImage = PIRATE_LEFT;
             } else if (Objects.equals(direction, "right")) {
                 setOldPoints();
+                isLeft = false;
                 move(speed, 0);
-                currentImage = PIRATE_RIGHT;
             } else if (Objects.equals(direction, "up")) {
                 setOldPoints();
                 move(0, -speed);
@@ -88,6 +78,7 @@ public class Pirate extends Level{
                 setOldPoints();
                 move(0, speed);
             }
+            renderInvincible();
 
             int now = (int) System.currentTimeMillis();
             isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
@@ -115,6 +106,9 @@ public class Pirate extends Level{
         }
     }
 
+    /**
+     * Method that changes the direction of the pirates movement
+     */
     public void changeDirection(){
         if (Objects.equals(direction, "left")) {
             direction = "right";
@@ -127,6 +121,22 @@ public class Pirate extends Level{
         }
     }
 
+    /**
+     * Method that returns a random direction
+     */
+    public String getRandomDirection(List<String> list){
+        list.add("left");
+        list.add("right");
+        list.add("up");
+        list.add("down");
+
+        Random rand = new Random();
+        return list.get(rand.nextInt(list.size()));
+    }
+
+    /**
+     * Method that checks if the pirate is out of bound
+     */
     public void checkOutOfBound(){
         if ((y - IMAGE_LENGTH/2 < topEdge) || (y - IMAGE_LENGTH/2 > bottomEdge) || (x - IMAGE_WIDTH/2 < leftEdge) || (x > rightEdge)) {
             moveBack();
@@ -134,20 +144,16 @@ public class Pirate extends Level{
         };
     }
 
-    public void setBound(int bottom, int top, int left, int right){
-        this.bottomEdge = bottom;
-        this.topEdge = top;
-        this.leftEdge = left;
-        this.rightEdge = right;
-    }
-
+    /**
+     * Method that moves the pirate
+     */
     private void move(double xMove, double yMove){
         x += xMove;
         y += yMove;
     }
 
     /**
-     * Method that moves the sailor back to its previous position
+     * Method that moves the pirate back to its previous position
      */
     private void moveBack(){
         x = oldX;
@@ -155,15 +161,27 @@ public class Pirate extends Level{
     }
 
     /**
-     * Method that stores the old coordinates of the sailor
+     * Method that stores the old coordinates of the pirate
      */
     private void setOldPoints(){
         oldX = x;
         oldY = y;
     }
 
+    private void renderInvincible(){
+        if (isInvincible && isLeft){
+            currentImage = PIRATE_HIT_LEFT;
+        } else if (isInvincible && !isLeft){
+            currentImage = PIRATE_HIT_RIGHT;
+        } else if (!isInvincible && isLeft) {
+            currentImage = PIRATE_LEFT;
+        } else if (!isInvincible && !isLeft){
+            currentImage = PIRATE_RIGHT;
+        }
+    }
+
     /**
-     * Method that renders the current health as a percentage on screen
+     * Method that renders the current health of pirate as a percentage above them
      */
     private void renderHealthPoints(){
         double percentageHP = ((double) healthPoints/MAX_HEALTH_POINTS) * 100;
@@ -175,10 +193,9 @@ public class Pirate extends Level{
         FONT.drawString(Math.round(percentageHP) + "%", x - IMAGE_WIDTH/2, y-6 - IMAGE_LENGTH/2, colour);
     }
 
-    public Rectangle getBoundingBox(){
-        return currentImage.getBoundingBoxAt(new Point(x, y));
-    }
-
+    /**
+     * Method that reduces pirates health points if they are not invincible
+     */
     public void reduceHealthPoints(int damage) {
         if (!isInvincible){
             healthPoints = healthPoints - damage;
@@ -187,11 +204,18 @@ public class Pirate extends Level{
         }
     }
 
+    public Rectangle getBoundingBox(){
+        return currentImage.getBoundingBoxAt(new Point(x, y));
+    }
+
     public boolean isDead(){
         return healthPoints <= 0;
     }
 
-    public void invincible(){
-
+    public void setBound(int bottom, int top, int left, int right){
+        this.bottomEdge = bottom;
+        this.topEdge = top;
+        this.leftEdge = left;
+        this.rightEdge = right;
     }
 }
