@@ -42,31 +42,60 @@ public class Object {
     protected double maxHealth;
     protected Image currentImage;
 
+    /**
+     * Costructor for object
+     * @param x starting x coordinate
+     * @param y starting y coordinate
+     */
     public Object(int x, int y){
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Method that reduces object health points by damage
+     * @param damage value to reduce health points by
+     */
     public void reduceHealthPoints(int damage) {
         healthPoints = healthPoints - damage;
     }
 
+    /**
+     * Method that gets current x coordinates
+     * @return returns x coordinates
+     */
     public double getX(){
         return x;
     }
 
+    /**
+     * Method that gets current y coordinates
+     * @return returns y coordinates
+     */
     public double getY(){
         return y;
     }
 
+    /**
+     * Method that gets the bounding box of object
+     * @return returns Rectangle of object
+     */
     public Rectangle getBoundingBox(){
         return currentImage.getBoundingBoxAt(new Point(x, y));
     }
 
+    /**
+     * Method that gets the health of object
+     * @return returns health points
+     */
     public int getHealth(){
         return (int) healthPoints;
     }
 
+    /**
+     * Method that gets the max health of object
+     * @return returns object max health
+     */
     public int getMaxHealth(){
         return (int) maxHealth;
     }

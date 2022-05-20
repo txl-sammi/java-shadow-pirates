@@ -39,6 +39,11 @@ public class Sailor extends Object implements Attackable{
     private int lastAttackTime = (int) System.currentTimeMillis() - ATTACK_COOLDOWN;
     private boolean inAttackState = false;
 
+    /**
+     * Constructor for Sailor object
+     * @param startX starting x coordinates
+     * @param startY starting y coordinates
+     */
     public Sailor(int startX, int startY){
         super(startX, startY);
         this.maxHealth = MAX_HEALTH_POINTS;
@@ -50,6 +55,9 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that performs state update
+     * @param input player input
+     * @param blocks list of blocks
+     * @param pirates list of pirates
      */
     public void update(Input input, Block[] blocks, Pirate[] pirates){
         // store old coordinates every time the sailor moves
@@ -91,6 +99,7 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that checks for collisions between sailor and blocks
+     * @param blocks list of blocks
      */
     private void checkCollisions(Block[] blocks){
         // check collisions and print log
@@ -102,7 +111,9 @@ public class Sailor extends Object implements Attackable{
                     if (!current.isExploding() && current.isExplodable()){
                         current.exploding(this);
                     }
-                    moveBack();
+                    if (!current.hasDisappeared()){
+                        moveBack();
+                    }
                 }
             }
         }
@@ -110,6 +121,8 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that moves the sailor given the direction
+     * @param xMove x direction
+     * @param yMove y direction
      */
     private void move(int xMove, int yMove){
         x += xMove;
@@ -156,7 +169,7 @@ public class Sailor extends Object implements Attackable{
      * Method that checks if sailor has reached the ladder
      */
     public boolean hasWon(){
-        return (x >= WIN_X) && (y > WIN_Y);
+        return ((x >= WIN_X) && (y > WIN_Y));
     }
 
     /**
@@ -165,7 +178,7 @@ public class Sailor extends Object implements Attackable{
     public void checkOutOfBound(){
         if ((y - IMAGE_LENGTH/2 < topEdge) || (y - IMAGE_LENGTH/2 > bottomEdge) || (x - IMAGE_WIDTH/2 < leftEdge) || (x > rightEdge)) {
             moveBack();
-        };
+        }
     }
 
     /**
@@ -184,6 +197,7 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that boosts sailors max health with given value
+     * @param boost integer value of how much to boost
      */
     public void boostMaxHealth(int boost){
         maxHealth = MAX_HEALTH_POINTS + boost;
@@ -192,6 +206,7 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that increases sailors health with given value
+     * @param boost integer value of how much to boost
      */
     public void increaseHealth(int boost){
         if (healthPoints + boost >= MAX_HEALTH_POINTS){
@@ -204,6 +219,7 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that increases sailor damage with given value
+     * @param boost integer value of how much to boost
      */
     public void increaseDamage(int boost){
         damagePoints = damagePoints + boost;
@@ -226,6 +242,7 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that checks if sailor has collided with any pirates
+     * @param pirates list of pirates
      */
     public void checkPirateCollisions(Pirate[] pirates){
         Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
@@ -239,6 +256,10 @@ public class Sailor extends Object implements Attackable{
         }
     }
 
+    /**
+     * Method use to attack given object with damage points
+     * @param object objects to inflict damage to
+     */
     @Override
     public void attack(Object object) {
         object.reduceHealthPoints(damagePoints);
@@ -246,11 +267,19 @@ public class Sailor extends Object implements Attackable{
 
     /**
      * Method that reduces sailors health points by given value
+     * @param damage value of how much damage to inflict
      */
     public void reduceHealthPoints(int damage) {
         healthPoints = healthPoints - damage;
     }
 
+    /**
+     * Method used to set game boundaries
+     * @param bottom bottom boundary
+     * @param top top boundary
+     * @param left left boundary
+     * @param right right boundary
+     */
     public void setBound(int bottom, int top, int left, int right){
         this.bottomEdge = bottom;
         this.topEdge = top;
@@ -258,12 +287,28 @@ public class Sailor extends Object implements Attackable{
         this.rightEdge = right;
     }
 
+    /**
+     * Method used to get health points
+     * @return returns sailor health points
+     */
     public int getHealth(){
         return (int) healthPoints;
     }
 
+    /**
+     * Method used to get max health
+     * @return returns sailor max health
+     */
     public int getMaxHealth(){
         return maxHealth;
+    }
+
+    /**
+     * Method used to get damage points
+     * @return returns sailor damage points
+     */
+    public int getDamagePoints(){
+        return damagePoints;
     }
 
 }

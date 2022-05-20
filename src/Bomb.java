@@ -1,6 +1,11 @@
 public class Bomb extends Block{
     private boolean disappeared = false;
 
+    /**
+     * Constructor for bomb
+     * @param startX starting x coordinate
+     * @param startY starting y coordinates
+     */
     public Bomb(int startX, int startY){
         super(startX, startY);
         this.currentImage = BOMB;

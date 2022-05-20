@@ -51,6 +51,9 @@ public class ShadowPirate extends AbstractGame{
     private int leftEdge = 0;
     private int rightEdge = 0;
 
+    /** Constructor for ShadowPirate game that sets window width, height, and game title
+     * reads level 0 file and indicates that the main game is not on
+     */
     public ShadowPirate(){
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
         readCSV(LEVEL0_FILE);
@@ -67,8 +70,8 @@ public class ShadowPirate extends AbstractGame{
         game.run();
     }
 
-    /**
-     * Method used to read file and create objects
+    /** Method used to read file and create objects
+     * @param fileName name of file to be read
      */
     private void readCSV(String fileName){
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))){
@@ -135,9 +138,9 @@ public class ShadowPirate extends AbstractGame{
         }
     }
 
-    /**
-     * Performs a state update. Pressing escape key,
+    /** Performs a state update. Pressing escape key,
      * allows game to exit.
+     * @param input player input
      */
     @Override
     public void update(Input input){
@@ -192,7 +195,7 @@ public class ShadowPirate extends AbstractGame{
 
                 for (Projectile projectile : projectiles){
                     if (!(projectile == null)){
-                        if (!projectile.hasDisappeared()){
+                        if (projectile.hasDisappeared()){
                             projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
                             projectile.update(sailor);
                         }
@@ -254,7 +257,7 @@ public class ShadowPirate extends AbstractGame{
 
                 for (Projectile projectile : projectiles){
                     if (!(projectile == null)){
-                        if (!projectile.hasDisappeared()){
+                        if (projectile.hasDisappeared()){
                             projectile.setBound(bottomEdge, topEdge, leftEdge, rightEdge);
                             projectile.update(sailor);
                         }
@@ -272,8 +275,9 @@ public class ShadowPirate extends AbstractGame{
         }
     }
 
-    /**
-     * Method used to draw the start screen instructions
+    /** Method used to draw start screen instructions
+     * @param input player input that starts game if space is pressed
+     * @param message mesage that will be drawn
      */
     private void drawStartScreen(Input input, String message){
         FONT.drawString(message, (Window.getWidth()/2.0 - (FONT.getWidth(message)/2.0)),
@@ -283,15 +287,14 @@ public class ShadowPirate extends AbstractGame{
         }
     }
 
-    /**
-     * Method used to draw end screen messages
+    /** Method that draws the end screen message
+     * @param message message that will be drawn
      */
     private void drawEndScreen(String message){
         FONT.drawString(message, (Window.getWidth()/2.0 - (FONT.getWidth(message)/2.0)), FONT_Y_POS);
     }
 
-    /**
-     * Method that clears the objects in level0
+    /** Method that clears the objects in level0
      */
     private void clearLevel(){
         for (int i=0; i < MAX_ARRAY_SIZE; i++) {

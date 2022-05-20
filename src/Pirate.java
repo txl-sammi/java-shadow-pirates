@@ -45,13 +45,18 @@ public class Pirate extends Object{
     private int leftEdge;
     private int rightEdge;
     private boolean isInvincible = false;
-    private boolean isLeft = false;
-    private boolean isCooldown = false;
+    private boolean isLeft;
+    private boolean onCooldown = false;
     private int lastHurtTime = (int) System.currentTimeMillis() - INVINCIBLE_DURATION;
     private int lastShootTime = (int) System.currentTimeMillis() - shootCooldown;
     private final double speed = MIN_SPEED + (Math.random() * (MAX_SPEED - MIN_SPEED));
     private String direction = getRandomDirection(DIRECTION_LIST);
 
+    /**
+     * Constructor for pirate
+     * @param startX starting x coordinate
+     * @param startY starting y coordinate
+     */
     public Pirate(int startX, int startY){
         super(startX, startY);
         this.healthPoints = MAX_HEALTH_POINTS;
@@ -71,6 +76,7 @@ public class Pirate extends Object{
 
     /**
      * Method that performs state update
+     * @param blocks list of blocks used to check collisions
      */
     public void update(Block[] blocks){
         // store old coordinates every time the pirate moves
@@ -96,7 +102,7 @@ public class Pirate extends Object{
             // check for invincible and cooldown durations
             int now = (int) System.currentTimeMillis();
             isInvincible = !((lastHurtTime + INVINCIBLE_DURATION <= now));
-            isCooldown = !((lastShootTime + shootCooldown <= now));
+            onCooldown = !((lastShootTime + shootCooldown <= now));
 
 
             checkCollisions(blocks);
@@ -108,6 +114,7 @@ public class Pirate extends Object{
 
     /**
      * Method that checks for collisions between pirate and blocks
+     * @param blocks list of blocks
      */
     private void checkCollisions(Block[] blocks){
         // check collisions and print log
@@ -142,6 +149,7 @@ public class Pirate extends Object{
 
     /**
      * Method that returns a random direction
+     * @param list list of possible directions
      */
     public String getRandomDirection(List<String> list){
         list.add("left");
@@ -164,7 +172,9 @@ public class Pirate extends Object{
     }
 
     /**
-     * Method that moves the pirate
+     * Method that moves the projectile to the given direction
+     * @param xMove x direction
+     * @param yMove y direction
      */
     private void move(double xMove, double yMove){
         x += xMove;
@@ -216,18 +226,25 @@ public class Pirate extends Object{
     }
 
     /**
-     * Method that reduces pirates health points if they are not invincible
+     * Method that reduces pirate health points by given value
+     * @param damage value of how much damage to inflict
      */
     public void reduceHealthPoints(int damage) {
         if (!isInvincible && !isDead()){
             healthPoints = healthPoints - damage;
             lastHurtTime = (int) System.currentTimeMillis();
-            System.out.println("Sailor inflicts " + damage + " damage points on Pirate. Pirates's current health: " + getHealth() + "/" + getMaxHealth());
+            if (this.getClass().getName().equals("Pirate")){
+                System.out.println("Sailor inflicts " + damage + " damage points on Pirate. Pirate's current health: " + getHealth() + "/" + getMaxHealth());
+            }
+            else if (this.getClass().getName().equals("Blackbeard")){
+                System.out.println("Sailor inflicts " + damage + " damage points on Blackbeard. Blackbeard's current health: " + getHealth() + "/" + getMaxHealth());
+            }
         }
     }
 
     /**
      * Method that checks if the sailor is within the pirates attack range
+     * @param sailor sailor to shoot
      */
     public boolean canShoot(Sailor sailor){
         Rectangle sailorBox = sailor.getBoundingBox();
@@ -239,6 +256,7 @@ public class Pirate extends Object{
 
     /**
      * Method that determines the direction the bullet with be rotated in radians
+     * @param sailor sailor to shoot
      */
     public double directionFromSailor(Sailor sailor){
         double sailorX = sailor.getX();
@@ -255,10 +273,12 @@ public class Pirate extends Object{
     }
 
     /**
-     * Method that initiates a projectile if the pirate's cooldown is over
+     * Method that returns a projectile if the pirate's cooldown is over
+     * @param sailor sailor to shoot
+     * @return returns a projectile object
      */
     public Projectile shoot(Sailor sailor){
-        if (!isCooldown){
+        if (!onCooldown){
             lastShootTime = (int) System.currentTimeMillis();
             return new Projectile(projectile, projectileSpeed, maxDamage, x, y, directionFromSailor(sailor));
         }
@@ -267,11 +287,19 @@ public class Pirate extends Object{
 
     /**
      * Method that checks if pirate has died
+     * @returns whether health points is less than or equal to 0
      */
     public boolean isDead(){
         return healthPoints <= 0;
     }
 
+    /**
+     * Method used to set game boundaries
+     * @param bottom bottom boundary
+     * @param top top boundary
+     * @param left left boundary
+     * @param right right boundary
+     */
     public void setBound(int bottom, int top, int left, int right){
         this.bottomEdge = bottom;
         this.topEdge = top;
@@ -279,10 +307,18 @@ public class Pirate extends Object{
         this.rightEdge = right;
     }
 
+    /**
+     * Method that gets pirate current health
+     * @return returns pirate current health points
+     */
     public int getHealth(){
         return (int) healthPoints;
     }
 
+    /**
+     * Method that gets pirates max health
+     * @return returns pirates max health
+     */
     public int getMaxHealth(){
         return maxHealth;
     }

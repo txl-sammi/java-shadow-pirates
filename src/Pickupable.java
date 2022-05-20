@@ -1,3 +1,3 @@
 interface Pickupable {
-    public void pickup(Sailor sailor);
+    void pickup(Sailor sailor);
 }

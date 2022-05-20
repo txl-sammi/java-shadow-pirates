@@ -1,5 +1,10 @@
 public class Blackbeard extends Pirate{
 
+    /**
+     * Constructor for blackbeard
+     * @param startX starting x coordinates
+     * @param startY starting y coordinates
+     */
     public Blackbeard(int startX, int startY){
         super(startX, startY);
         this.healthPoints = MAX_HEALTH_POINTS*2;
