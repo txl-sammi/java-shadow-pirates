@@ -105,13 +105,13 @@ public class Sailor extends Object implements Attackable{
         // check collisions and print log
         Rectangle sailorBox = currentImage.getBoundingBoxAt(new Point(x, y));
         for (Block current : blocks) {
-            if (current != null){
+            if (current != null && current.hasDisappeared()){
                 Rectangle blockBox = current.getBoundingBox();
                 if (sailorBox.intersects(blockBox)) {
                     if (!current.isExploding() && current.isExplodable()){
                         current.exploding(this);
                     }
-                    if (!current.hasDisappeared()){
+                    if (current.hasDisappeared()){
                         moveBack();
                     }
                 }

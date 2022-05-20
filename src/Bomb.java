@@ -1,5 +1,4 @@
 public class Bomb extends Block{
-    private boolean disappeared = false;
 
     /**
      * Constructor for bomb
@@ -18,7 +17,6 @@ public class Bomb extends Block{
     public void update() {
         if (!disappeared){
             currentImage.draw(x, y);
-
             if (isExploding){
                 currentImage = EXPLOSION;
                 int now = (int) System.currentTimeMillis();

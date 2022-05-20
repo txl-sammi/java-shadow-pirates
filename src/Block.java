@@ -3,7 +3,7 @@ public class Block extends Object{
     protected final static int EXPLODING_DURATION = 3000;
     protected boolean explodable;
     protected boolean isExploding = false;
-    protected boolean disappeared = false;
+    protected boolean disappeared;
     protected int lastExplodeTime = (int) System.currentTimeMillis() - EXPLODING_DURATION;
 
     /**
@@ -56,7 +56,7 @@ public class Block extends Object{
      * @return returns disappeared
      */
     public boolean hasDisappeared(){
-        return disappeared;
+        return !disappeared;
     }
 
 }
